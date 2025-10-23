@@ -204,12 +204,12 @@ export default function SnakePage() {
 
   return (
     <div className="w-full h-full flex justify-center items-center bg-neutral-900">
-      <div className="w-xl flex flex-col mt-[-1] justify-center select-none bg-neutral-900 text-white min-h-screen">
+      <div className="md:w-xl flex flex-col mt-[-1] justify-center select-none bg-neutral-900 text-white min-h-screen">
         <div className="flex items-center w-full justify-between mb-3 text-sm">
           <span className="mr-4">SCORE: <strong>{score}</strong></span>
           <span>BEST: <strong>{best}</strong></span>
         </div>
-        <div className="overflow-hidden w-xl flex justify-center">
+        <div className="overflow-hidden md:w-xl flex justify-center">
           <canvas ref={canvasRef} className="block w-full" />
         </div>
       </div>
