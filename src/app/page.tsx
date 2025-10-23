@@ -71,7 +71,7 @@ export default function SnakePage() {
     if (!cvs) return;
     const parent = cvs.parentElement;
     if (!parent) return;
-    const target = parent.clientWidth; // Use full width of parent
+    const target = parent.clientWidth;
     const gridSize = stateRef.current?.gridSize ?? 14;
     const cell = Math.max(8, Math.floor(target / gridSize));
     const cssSize = cell * gridSize;
