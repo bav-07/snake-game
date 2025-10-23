@@ -65,6 +65,7 @@ export default function SnakePage() {
   const accRef = useRef<number>(0);
   const gameOverAtRef = useRef<number | null>(null);
   const restartTimeoutRef = useRef<number | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const resizeCanvas = () => {
     const cvs = canvasRef.current;
@@ -134,7 +135,72 @@ export default function SnakePage() {
       st.grace = 250;
     };
     window.addEventListener("keydown", onKey, { passive: false });
-    return () => window.removeEventListener("keydown", onKey as any);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!touchStartRef.current) return;
+      
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+
+      const deltaX = touch.clientX - touchStartRef.current.x;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      
+      // Minimum swipe distance to register as a swipe
+      const minSwipeDistance = 30;
+      
+      // Determine if it's more horizontal or vertical
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+      
+      if (Math.max(absX, absY) < minSwipeDistance) {
+        touchStartRef.current = null;
+        return;
+      }
+
+      let direction: Vec | null = null;
+      
+      if (absX > absY) {
+        // Horizontal swipe
+        direction = deltaX > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
+      } else {
+        // Vertical swipe
+        direction = deltaY > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
+      }
+
+      if (direction) {
+        const st = stateRef.current;
+        if (st && !opposite(direction, st.dir)) {
+          st.nextDir = direction;
+          st.grace = 250;
+        }
+      }
+
+      touchStartRef.current = null;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // Prevent scrolling while swiping on the game
+      e.preventDefault();
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, []);
 
   useEffect(() => {
